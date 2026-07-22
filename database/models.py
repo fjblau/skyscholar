@@ -77,7 +77,7 @@ class StandardTelemetry(BaseModel):
 
 class Flight(BaseModel):
     flight_id: str
-    station_id: str
+    station_id: Optional[str] = None
     balloon_item_id: Optional[str] = None
     payload_schema_ids: list[str] = []
     status: Literal[
