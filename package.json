@@ -1,0 +1,9 @@
+{
+  "name": "skyscholar",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd react-app && npm run dev",
+    "build": "cd react-app && npm run build"
+  }
+}

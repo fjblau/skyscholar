@@ -1,0 +1,6 @@
+FROM arangodb:3.11
+
+EXPOSE 8529
+
+ENTRYPOINT ["arangod"]
+CMD ["--server.endpoint", "tcp://0.0.0.0:8529", "--server.authentication=false", "--database.directory", "/var/lib/arangodb3"]
