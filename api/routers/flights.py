@@ -57,7 +57,7 @@ def create_flight(flight: Flight):
         entity_type="flight",
         entity_id=flight.flight_id,
         new_state=flight.status,
-        payload={"station_id": flight.station_id, "balloon_item_id": flight.balloon_item_id},
+        payload={"station_id": flight.station_id or "", "balloon_item_id": flight.balloon_item_id},
     )
     return doc
 

@@ -11,12 +11,12 @@ const STATUS_BADGE = {
 }
 
 const EMPTY_FORM = {
-  flight_id: '', station_id: '', status: 'planned',
+  flight_id: '', status: 'planned',
   launch_time: '', burst_altitude_m: '',
   ascent_rate_mps: '', descent_rate_mps: '', max_altitude_m: '', notes: '',
 }
 
-function FlightModal({ initial, stations, onSave, onClose }) {
+function FlightModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(initial || EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState(null)
@@ -31,7 +31,6 @@ function FlightModal({ initial, stations, onSave, onClose }) {
     try {
       await onSave({
         flight_id: form.flight_id,
-        station_id: form.station_id,
         status: form.status,
         launch_time: form.launch_time || undefined,
         burst_altitude_m: num(form.burst_altitude_m),
@@ -63,15 +62,6 @@ function FlightModal({ initial, stations, onSave, onClose }) {
               <input required value={form.flight_id} onChange={(e) => set('flight_id', e.target.value)}
                 placeholder="e.g. FLT-2026-001" disabled={!!initial} />
             </div>
-            <div className="form-group">
-              <label>Station *</label>
-              <select required value={form.station_id} onChange={(e) => set('station_id', e.target.value)}>
-                <option value="">Select…</option>
-                {stations.map((s) => <option key={s.station_id} value={s.station_id}>{s.name}</option>)}
-              </select>
-            </div>
-          </div>
-          <div className="form-row">
             <div className="form-group">
               <label>Status</label>
               <select value={form.status} onChange={(e) => set('status', e.target.value)}>
@@ -251,7 +241,6 @@ function TrajectoryPanel({ flightId, onClose }) {
 
 export default function Flights() {
   const [flights, setFlights] = useState([])
-  const [stations, setStations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [modal, setModal] = useState(null)
@@ -260,8 +249,8 @@ export default function Flights() {
 
   const load = () => {
     setLoading(true)
-    Promise.all([api.flights.list(), api.stations.list()])
-      .then(([f, s]) => { setFlights(f); setStations(s); setLoading(false) })
+    api.flights.list()
+      .then((f) => { setFlights(f); setLoading(false) })
       .catch((e) => { setError(e.message); setLoading(false) })
   }
 
@@ -291,7 +280,7 @@ export default function Flights() {
       ])
       const skewtData = skewtResult.status === 'fulfilled' ? skewtResult.value : null
       const trajectoryData = trajResult.status === 'fulfilled' ? trajResult.value : null
-      await generateFlightReport(f, skewtData, trajectoryData, stationName(f.station_id))
+      await generateFlightReport(f, skewtData, trajectoryData, f.station_id)
     } catch (e) {
       alert('Failed to generate report: ' + e.message)
     } finally {
@@ -299,10 +288,8 @@ export default function Flights() {
     }
   }
 
-  const stationName = (sid) => stations.find((s) => s.station_id === sid)?.name || sid
-
   const formFromFlight = (f) => ({
-    flight_id: f.flight_id, station_id: f.station_id,
+    flight_id: f.flight_id,
     status: f.status, launch_time: f.launch_time ? f.launch_time.slice(0, 16) : '',
     burst_altitude_m: f.burst_altitude_m ?? '', ascent_rate_mps: f.ascent_rate_mps ?? '',
     descent_rate_mps: f.descent_rate_mps ?? '', max_altitude_m: f.max_altitude_m ?? '',
@@ -336,7 +323,6 @@ export default function Flights() {
             <thead>
               <tr>
                 <th style={{ whiteSpace: 'nowrap' }}>Flight ID</th>
-                <th style={{ whiteSpace: 'nowrap' }}>Station</th>
                 <th style={{ whiteSpace: 'nowrap' }}>Launch</th>
                 <th style={{ whiteSpace: 'nowrap' }}>Burst Alt</th>
                 <th style={{ whiteSpace: 'nowrap' }}>Status</th>
@@ -347,7 +333,6 @@ export default function Flights() {
               {flights.map((f) => (
                 <tr key={f.flight_id}>
                   <td style={{ whiteSpace: 'nowrap' }}><code>{f.flight_id}</code></td>
-                  <td style={{ whiteSpace: 'nowrap' }}>{stationName(f.station_id)}</td>
                   <td style={{ fontSize: '0.75rem', color: '#889', whiteSpace: 'nowrap' }}>
                     {f.launch_time ? new Date(f.launch_time).toLocaleString() : '—'}
                   </td>
@@ -377,7 +362,6 @@ export default function Flights() {
       {modal && (
         <FlightModal
           initial={modal === 'add' ? null : modal}
-          stations={stations}
           onSave={handleSave}
           onClose={() => setModal(null)}
         />
