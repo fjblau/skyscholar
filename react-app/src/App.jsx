@@ -3,6 +3,7 @@ import './App.css'
 import Dashboard from './components/Dashboard'
 import Stations from './components/Stations'
 import Flights from './components/Flights'
+import FlightPlans from './components/FlightPlans'
 import Payloads from './components/Payloads'
 import Admin from './components/Admin'
 
@@ -10,6 +11,7 @@ const TABS = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'stations', label: 'Ground Stations' },
   { id: 'flights', label: 'Flights' },
+  { id: 'flight-plans', label: 'Flight Plans' },
   { id: 'payloads', label: 'Sensor Payloads' },
   { id: 'admin', label: 'Admin' },
 ]
@@ -43,6 +45,7 @@ function App() {
         {tab === 'dashboard' && <Dashboard />}
         {tab === 'stations' && <Stations />}
         {tab === 'flights' && <Flights />}
+        {tab === 'flight-plans' && <FlightPlans />}
         {tab === 'payloads' && <Payloads />}
         {tab === 'admin' && <Admin />}
       </main>

@@ -13,6 +13,7 @@ COLLECTION_STATIONS = "ground_stations"
 COLLECTION_INVENTORY = "inventory_items"
 COLLECTION_PAYLOAD_SCHEMAS = "payload_schemas"
 COLLECTION_AUDIT_EVENTS = "audit_events"
+COLLECTION_FLIGHT_PLANS = "flight_plans"
 
 EDGE_STATION_INVENTORY = "station_inventory"
 EDGE_FLIGHT_TELEMETRY = "flight_telemetry"
@@ -48,6 +49,7 @@ DOCUMENT_COLLECTIONS = [
     COLLECTION_INVENTORY,
     COLLECTION_PAYLOAD_SCHEMAS,
     COLLECTION_AUDIT_EVENTS,
+    COLLECTION_FLIGHT_PLANS,
 ]
 
 EDGE_COLLECTIONS = [
@@ -132,6 +134,7 @@ def _ensure_indexes(db):
     db.collection(COLLECTION_AUDIT_EVENTS).add_persistent_index(fields=["seq"], unique=True)
     db.collection(COLLECTION_AUDIT_EVENTS).add_persistent_index(fields=["entity_type", "entity_id"])
     db.collection(COLLECTION_AUDIT_EVENTS).add_persistent_index(fields=["event_type"])
+    db.collection(COLLECTION_FLIGHT_PLANS).add_persistent_index(fields=["plan_id"], unique=True)
 
 
 def disconnect_db():

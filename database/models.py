@@ -114,6 +114,26 @@ class Flight(BaseModel):
     notes: Optional[str] = None
 
 
+class FlightPlan(BaseModel):
+    plan_id: str
+    name: str
+    source_script: Optional[Literal["seed_simulation", "reverse_predict", "manual"]] = None
+    created_at: Optional[datetime] = None
+    launch_lat: Optional[float] = None
+    launch_lon: Optional[float] = None
+    launch_alt_m: Optional[float] = None
+    launch_time: Optional[datetime] = None
+    ascent_rate_mps: Optional[float] = None
+    burst_altitude_m: Optional[float] = None
+    descent_rate_mps: Optional[float] = None
+    predicted_landing_lat: Optional[float] = None
+    predicted_landing_lon: Optional[float] = None
+    script_params: Optional[dict[str, Any]] = None
+    result_data: Optional[dict[str, Any]] = None
+    notes: Optional[str] = None
+    promoted_flight_id: Optional[str] = None
+
+
 class TelemetryReading(BaseModel):
     flight_id: str
     timestamp: datetime

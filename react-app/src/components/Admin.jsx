@@ -92,6 +92,57 @@ function ParamField({ param, value, onChange }) {
   )
 }
 
+function buildFlightPlanPayload(scriptId, params, result) {
+  const planId = `plan-${scriptId}-${Date.now().toString(36)}`
+  const base = { plan_id: planId, source_script: scriptId }
+
+  if (scriptId === 'reverse_predict' && result.result_data) {
+    const d = result.result_data
+    return {
+      ...base,
+      name: `Reverse predict ${d.recommended_launch_lat?.toFixed(4)}, ${d.recommended_launch_lon?.toFixed(4)}`,
+      launch_lat: d.recommended_launch_lat,
+      launch_lon: d.recommended_launch_lon,
+      launch_alt_m: d.launch_alt_m ?? params.launch_alt,
+      ascent_rate_mps: d.ascent_rate_mps ?? params.ascent_rate,
+      burst_altitude_m: d.burst_alt_m ?? params.burst_alt,
+      descent_rate_mps: d.descent_rate_mps ?? params.descent_rate,
+      predicted_landing_lat: d.predicted_landing_lat,
+      predicted_landing_lon: d.predicted_landing_lon,
+      script_params: params,
+      result_data: d,
+    }
+  }
+
+  if (scriptId === 'seed_simulation' && result.result_data) {
+    const d = result.result_data
+    return {
+      ...base,
+      name: `Seed sim ${d.launch_lat?.toFixed(4)}, ${d.launch_lon?.toFixed(4)}`,
+      launch_lat: d.launch_lat ?? params.launch_lat,
+      launch_lon: d.launch_lon ?? params.launch_lon,
+      launch_alt_m: d.launch_alt_m ?? params.launch_alt,
+      launch_time: d.launch_time,
+      ascent_rate_mps: d.ascent_rate_mps,
+      burst_altitude_m: d.burst_altitude_m,
+      descent_rate_mps: d.descent_rate_mps,
+      predicted_landing_lat: d.predicted_landing_lat,
+      predicted_landing_lon: d.predicted_landing_lon,
+      script_params: params,
+      result_data: d,
+    }
+  }
+
+  return {
+    ...base,
+    name: `${scriptId} run ${new Date().toISOString().slice(0, 16)}`,
+    launch_lat: params.launch_lat,
+    launch_lon: params.launch_lon,
+    launch_alt_m: params.launch_alt,
+    script_params: params,
+  }
+}
+
 function ScriptCard({ script }) {
   const defaultParams = Object.fromEntries(
     script.params.map((p) => [p.name, p.default ?? ''])
@@ -99,6 +150,8 @@ function ScriptCard({ script }) {
   const [params, setParams] = useState(() => loadStoredParams(script.id, defaultParams))
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState(null)
+  const [planSaved, setPlanSaved] = useState(false)
+  const [planSaving, setPlanSaving] = useState(false)
   const outputRef = useRef(null)
 
   useEffect(() => {
@@ -109,9 +162,23 @@ function ScriptCard({ script }) {
     setParams((prev) => ({ ...prev, [name]: value }))
   }
 
+  async function handleSaveAsPlan() {
+    setPlanSaving(true)
+    try {
+      const payload = buildFlightPlanPayload(script.id, params, result)
+      await api.flightPlans.create(payload)
+      setPlanSaved(true)
+    } catch (err) {
+      alert('Failed to save flight plan: ' + err.message)
+    } finally {
+      setPlanSaving(false)
+    }
+  }
+
   async function handleRun() {
     setRunning(true)
     setResult(null)
+    setPlanSaved(false)
     try {
       const cleaned = Object.fromEntries(
         Object.entries(params).filter(([, v]) => v !== '')
@@ -225,6 +292,15 @@ function ScriptCard({ script }) {
         )}
         {result && result.command && (
           <code className="admin-cmd-preview">{result.command}</code>
+        )}
+        {result && !result.error && (result.result_data || result.exit_code === 0) && !planSaved && (
+          <button className="btn btn-ghost" onClick={handleSaveAsPlan} disabled={planSaving}
+            style={{ marginLeft: 8 }}>
+            {planSaving ? 'Saving...' : 'Save as Flight Plan'}
+          </button>
+        )}
+        {planSaved && (
+          <span className="badge green" style={{ marginLeft: 8 }}>Plan saved</span>
         )}
       </div>
 
