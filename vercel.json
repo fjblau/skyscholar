@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://skyscholar-production.up.railway.app/api/:path*"
+      "destination": "https://skyscholar-api-production.up.railway.app/api/:path*"
     }
   ],
   "headers": [
