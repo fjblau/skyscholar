@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-DEPLOY_VERSION = "2026.07.22-1"
+DEPLOY_VERSION = "2026.07.22-2"
 
 
 @router.get("/api/health")
