@@ -467,6 +467,7 @@ def main() -> None:
     parser.add_argument(
         "--launch-alt", type=float, default=425.0, help="Launch altitude in metres (default 425)"
     )
+    parser.add_argument("--json", action="store_true", help="Print trailing JSON summary for machine consumption")
     args = parser.parse_args()
 
     flight_id = args.flight_id or f"sim-ascent-{uuid.uuid4().hex[:8]}"
@@ -529,6 +530,25 @@ def main() -> None:
             print(f"  Inserted ground_stations/{feldkirch.station_id}")
 
         print("Done.")
+
+    if args.json:
+        flight = deployment["flight"]
+        trajectory = deployment.get("trajectory", {})
+        json_summary = {
+            "flight_id": flight.flight_id,
+            "launch_lat": flight.launch_lat,
+            "launch_lon": flight.launch_lon,
+            "launch_alt_m": flight.launch_alt_m,
+            "launch_time": flight.launch_time.isoformat() if flight.launch_time else None,
+            "ascent_rate_mps": flight.ascent_rate_mps,
+            "burst_altitude_m": flight.burst_altitude_m,
+            "descent_rate_mps": 6.0,
+            "predicted_landing_lat": trajectory.get("predicted_landing_lat"),
+            "predicted_landing_lon": trajectory.get("predicted_landing_lon"),
+            "point_count": trajectory.get("point_count"),
+            "source": "seed_simulation",
+        }
+        print(json.dumps(json_summary))
 
 
 if __name__ == "__main__":

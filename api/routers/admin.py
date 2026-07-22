@@ -68,6 +68,13 @@ SCRIPT_REGISTRY: dict[str, dict[str, Any]] = {
                 "label": "Launch altitude (m)",
                 "default": 425.0,
             },
+            {
+                "name": "json",
+                "flag": "--json",
+                "type": "boolean",
+                "label": "Emit JSON summary",
+                "default": False,
+            },
         ],
     },
     "reverse_predict": {
@@ -159,7 +166,7 @@ SCRIPT_REGISTRY: dict[str, dict[str, Any]] = {
 
 SCRIPT_TIMEOUT_S = 120
 
-SCRIPTS_WITH_TRAILING_JSON = {"reverse_predict"}
+SCRIPTS_WITH_TRAILING_JSON = {"reverse_predict", "seed_simulation"}
 
 
 class RunScriptRequest(BaseModel):

@@ -68,6 +68,15 @@ export const api = {
     batch: (readings) => req('/telemetry/batch', { method: 'POST', body: readings }),
   },
 
+  flightPlans: {
+    list: () => req('/flight-plans'),
+    get: (id) => req(`/flight-plans/${id}`),
+    create: (data) => req('/flight-plans', { method: 'POST', body: data }),
+    update: (id, data) => req(`/flight-plans/${id}`, { method: 'PUT', body: data }),
+    delete: (id) => req(`/flight-plans/${id}`, { method: 'DELETE' }),
+    promote: (id, flightId) => req(`/flight-plans/${id}/promote`, { method: 'POST', body: { flight_id: flightId } }),
+  },
+
   admin: {
     listScripts: () => req('/admin/scripts'),
     runScript: (scriptId, params = {}) =>

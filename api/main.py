@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import os
 
 from database.connection import connect_db, disconnect_db
-from api.routers import flights, health, stations, telemetry, exports, payloads, admin
+from api.routers import flights, health, stations, telemetry, exports, payloads, admin, flight_plans
 
 try:
     from dotenv import load_dotenv
@@ -40,3 +40,4 @@ app.include_router(telemetry.router)
 app.include_router(exports.router)
 app.include_router(payloads.router)
 app.include_router(admin.router)
+app.include_router(flight_plans.router)
