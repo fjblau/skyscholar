@@ -251,10 +251,13 @@ def build_deployment(
             lat=launch_lat,
             lon=launch_lon,
             altitude_m=launch_alt_m,
-            description="Simulated launch site — Salzburg, Austria",
+            description="Simulated station — Salzburg, Austria",
         ),
-        status="active",
-        container_type="standard",
+        status="online",
+        antenna_type="Yagi 5el",
+        band="433 MHz",
+        firmware_version="2401222",
+        qth_locator="JN67nt",
     )
 
     balloon_item = InventoryItem(
@@ -271,8 +274,10 @@ def build_deployment(
 
     flight = Flight(
         flight_id=flight_id,
-        station_id=station_id,
         balloon_item_id=balloon_item_id,
+        launch_lat=launch_lat,
+        launch_lon=launch_lon,
+        launch_alt_m=launch_alt_m,
         status="ascending",
         launch_time=launch_time,
         ascent_rate_mps=ASCENT_RATE_MPS,

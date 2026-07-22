@@ -13,7 +13,9 @@ const STATUS_BADGE = {
 const EMPTY_FORM = {
   flight_id: '', status: 'planned',
   launch_time: '', burst_altitude_m: '',
-  ascent_rate_mps: '', descent_rate_mps: '', max_altitude_m: '', notes: '',
+  ascent_rate_mps: '', descent_rate_mps: '', max_altitude_m: '',
+  launch_lat: '', launch_lon: '', launch_alt_m: '',
+  notes: '',
 }
 
 function FlightModal({ initial, onSave, onClose }) {
@@ -37,6 +39,9 @@ function FlightModal({ initial, onSave, onClose }) {
         ascent_rate_mps: num(form.ascent_rate_mps),
         descent_rate_mps: num(form.descent_rate_mps),
         max_altitude_m: num(form.max_altitude_m),
+        launch_lat: num(form.launch_lat),
+        launch_lon: num(form.launch_lon),
+        launch_alt_m: num(form.launch_alt_m),
         notes: form.notes || undefined,
         payload_schema_ids: [],
       })
@@ -89,6 +94,23 @@ function FlightModal({ initial, onSave, onClose }) {
               <label>Descent Rate (m/s)</label>
               <input type="number" step="any" value={form.descent_rate_mps}
                 onChange={(e) => set('descent_rate_mps', e.target.value)} placeholder="e.g. 6.0" />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Launch Lat</label>
+              <input type="number" step="any" value={form.launch_lat}
+                onChange={(e) => set('launch_lat', e.target.value)} placeholder="e.g. 47.81" />
+            </div>
+            <div className="form-group">
+              <label>Launch Lon</label>
+              <input type="number" step="any" value={form.launch_lon}
+                onChange={(e) => set('launch_lon', e.target.value)} placeholder="e.g. 13.05" />
+            </div>
+            <div className="form-group">
+              <label>Launch Alt (m)</label>
+              <input type="number" step="any" value={form.launch_alt_m}
+                onChange={(e) => set('launch_alt_m', e.target.value)} placeholder="e.g. 425" />
             </div>
           </div>
           <div className="form-row">
@@ -280,7 +302,7 @@ export default function Flights() {
       ])
       const skewtData = skewtResult.status === 'fulfilled' ? skewtResult.value : null
       const trajectoryData = trajResult.status === 'fulfilled' ? trajResult.value : null
-      await generateFlightReport(f, skewtData, trajectoryData, f.station_id)
+      await generateFlightReport(f, skewtData, trajectoryData, null)
     } catch (e) {
       alert('Failed to generate report: ' + e.message)
     } finally {
@@ -293,6 +315,7 @@ export default function Flights() {
     status: f.status, launch_time: f.launch_time ? f.launch_time.slice(0, 16) : '',
     burst_altitude_m: f.burst_altitude_m ?? '', ascent_rate_mps: f.ascent_rate_mps ?? '',
     descent_rate_mps: f.descent_rate_mps ?? '', max_altitude_m: f.max_altitude_m ?? '',
+    launch_lat: f.launch_lat ?? '', launch_lon: f.launch_lon ?? '', launch_alt_m: f.launch_alt_m ?? '',
     notes: f.notes ?? '',
   })
 

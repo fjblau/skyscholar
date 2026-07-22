@@ -30,8 +30,24 @@ class GroundStation(BaseModel):
     station_id: str
     name: str
     location: Location
-    status: Literal["active", "inactive", "maintenance"] = "active"
-    container_type: Literal["standard", "large", "mobile"] = "standard"
+    status: Literal["online", "offline", "maintenance"] = "online"
+    # TinyGS-inspired fields
+    listening: Optional[str] = None
+    firmware_version: Optional[str] = None
+    qth_locator: Optional[str] = None
+    antenna_type: Optional[str] = None
+    band: Optional[str] = None
+    radio_status: Optional[str] = None
+    auto_tune_freq_mhz: Optional[float] = None
+    test_mode: bool = False
+    auto_update: bool = True
+    confirmed_packets: int = 0
+    telemetry_packets: int = 0
+    record_distance_km: Optional[float] = None
+    local_ip: Optional[str] = None
+    wifi_rssi: Optional[str] = None
+    last_seen: Optional[datetime] = None
+    last_packet: Optional[datetime] = None
     notes: Optional[str] = None
 
 
@@ -77,8 +93,10 @@ class StandardTelemetry(BaseModel):
 
 class Flight(BaseModel):
     flight_id: str
-    station_id: Optional[str] = None
     balloon_item_id: Optional[str] = None
+    launch_lat: Optional[float] = None
+    launch_lon: Optional[float] = None
+    launch_alt_m: Optional[float] = 0
     payload_schema_ids: list[str] = []
     status: Literal[
         "planned", "launching", "ascending", "descending", "landed", "recovered", "aborted"

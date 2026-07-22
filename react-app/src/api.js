@@ -28,7 +28,6 @@ export const api = {
     create: (data) => req('/stations', { method: 'POST', body: data }),
     update: (id, data) => req(`/stations/${id}`, { method: 'PUT', body: data }),
     delete: (id) => req(`/stations/${id}`, { method: 'DELETE' }),
-    flights: (id) => req(`/stations/${id}/flights`),
   },
 
   flights: {

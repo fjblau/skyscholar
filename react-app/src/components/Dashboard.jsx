@@ -37,7 +37,7 @@ export default function Dashboard() {
   if (loading) return <div className="loading">Loading…</div>
   if (error) return <div className="alert error">{error}</div>
 
-  const activeStations = stations.filter((s) => s.status === 'active').length
+  const activeStations = stations.filter((s) => s.status === 'online').length
   const activeFlights = flights.filter(
     (f) => !['planned', 'recovered', 'aborted', 'landed'].includes(f.status)
   ).length
@@ -62,7 +62,7 @@ export default function Dashboard() {
         <StatTile
           label="Ground Stations"
           value={stations.length}
-          unit={`${activeStations} active`}
+          unit={`${activeStations} online`}
           variant={activeStations > 0 ? 'ok' : 'warn'}
         />
         <StatTile
@@ -91,7 +91,7 @@ export default function Dashboard() {
                 <th>ID</th>
                 <th>Name</th>
                 <th>Location</th>
-                <th>Type</th>
+                <th>Antenna</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -104,7 +104,7 @@ export default function Dashboard() {
                     {s.location?.lat?.toFixed(4)}, {s.location?.lon?.toFixed(4)}
                     {s.location?.description ? ` · ${s.location.description}` : ''}
                   </td>
-                  <td><span className="badge gray">{s.container_type}</span></td>
+                  <td>{s.antenna_type || '\u2014'}</td>
                   <td>
                     <span className={`status-${s.status}`} style={{ fontWeight: 600, fontSize: '0.78rem' }}>
                       {s.status}
@@ -128,7 +128,6 @@ export default function Dashboard() {
             <thead>
               <tr>
                 <th>Flight ID</th>
-                <th>Station</th>
                 <th>Status</th>
                 <th>Launch Time</th>
                 <th>Max Alt</th>
@@ -138,7 +137,6 @@ export default function Dashboard() {
               {recentFlights.map((f) => (
                 <tr key={f.flight_id}>
                   <td><code>{f.flight_id}</code></td>
-                  <td>{f.station_id}</td>
                   <td>
                     <span className={`status-${f.status}`} style={{ fontWeight: 600, fontSize: '0.78rem' }}>
                       {f.status}

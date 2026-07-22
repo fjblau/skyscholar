@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, HTTPException
 from database.connection import get_db, COLLECTION_STATIONS
 from database.models import GroundStation
@@ -34,7 +35,7 @@ def create_station(station: GroundStation):
     )
     if list(cursor):
         raise HTTPException(status_code=409, detail="Station ID already exists")
-    doc = station.model_dump()
+    doc = _serialize_station(station.model_dump())
     db.collection(COLLECTION_STATIONS).insert(doc)
     return doc
 
@@ -49,7 +50,7 @@ def update_station(station_id: str, station: GroundStation):
     results = list(cursor)
     if not results:
         raise HTTPException(status_code=404, detail="Station not found")
-    doc = station.model_dump()
+    doc = _serialize_station(station.model_dump())
     db.aql.execute(
         "FOR s IN ground_stations FILTER s.station_id == @id UPDATE s WITH @doc IN ground_stations",
         bind_vars={"id": station_id, "doc": doc},
@@ -71,11 +72,8 @@ def delete_station(station_id: str):
     return {"deleted": station_id}
 
 
-@router.get("/{station_id}/flights")
-def get_station_flights(station_id: str):
-    db = get_db()
-    cursor = db.aql.execute(
-        "FOR f IN flights FILTER f.station_id == @sid SORT f.launch_time DESC RETURN f",
-        bind_vars={"sid": station_id},
-    )
-    return list(cursor)
+def _serialize_station(doc: dict) -> dict:
+    for field in ("last_seen", "last_packet"):
+        if doc.get(field) and isinstance(doc[field], datetime):
+            doc[field] = doc[field].isoformat()
+    return doc
