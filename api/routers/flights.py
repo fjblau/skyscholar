@@ -10,13 +10,10 @@ router = APIRouter(prefix="/api/flights", tags=["flights"])
 
 
 @router.get("")
-def list_flights(station_id: Optional[str] = None, status: Optional[str] = None):
+def list_flights(status: Optional[str] = None):
     db = get_db()
     filters = []
     bind_vars: dict = {}
-    if station_id:
-        filters.append("f.station_id == @sid")
-        bind_vars["sid"] = station_id
     if status:
         filters.append("f.status == @status")
         bind_vars["status"] = status
@@ -57,7 +54,7 @@ def create_flight(flight: Flight):
         entity_type="flight",
         entity_id=flight.flight_id,
         new_state=flight.status,
-        payload={"station_id": flight.station_id or "", "balloon_item_id": flight.balloon_item_id},
+        payload={"balloon_item_id": flight.balloon_item_id},
     )
     return doc
 
@@ -119,22 +116,14 @@ async def predict_trajectory(flight_id: str):
         raise HTTPException(status_code=404, detail="Flight not found")
     flight = results[0]
 
-    station_id = flight.get("station_id")
-    scursor = db.aql.execute(
-        "FOR s IN ground_stations FILTER s.station_id == @sid LIMIT 1 RETURN s",
-        bind_vars={"sid": station_id},
-    )
-    station_results = list(scursor)
-
     try:
         from balloon_predictor import LaunchParams, TawhiriClient
         from datetime import timezone
 
-        if not station_results:
-            raise HTTPException(status_code=422, detail="Station not found for trajectory prediction")
-
-        station = station_results[0]
-        loc = station.get("location", {})
+        launch_lat = flight.get("launch_lat")
+        launch_lon = flight.get("launch_lon")
+        if launch_lat is None or launch_lon is None:
+            raise HTTPException(status_code=422, detail="Flight must have launch_lat and launch_lon for trajectory prediction")
 
         launch_time_raw = flight.get("launch_time")
         if not launch_time_raw:
@@ -149,9 +138,9 @@ async def predict_trajectory(flight_id: str):
             launch_time = launch_time.replace(tzinfo=timezone.utc)
 
         params = LaunchParams(
-            launch_lat=loc.get("lat", 0),
-            launch_lon=loc.get("lon", 0),
-            launch_alt_m=loc.get("altitude_m", 0),
+            launch_lat=launch_lat,
+            launch_lon=launch_lon,
+            launch_alt_m=flight.get("launch_alt_m") or 0,
             launch_time=launch_time,
             ascent_rate_mps=flight.get("ascent_rate_mps") or 5.0,
             burst_alt_m=flight.get("burst_altitude_m") or 30000,

@@ -233,6 +233,24 @@ td code {
   background: #fff;
 }
 
+.form-check label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #334;
+}
+
+.form-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1a1a2e;
+}
+
 /* ── Modal ── */
 .modal-backdrop {
   position: fixed;
@@ -326,8 +344,8 @@ td code {
 }
 
 /* ── Status color map ── */
-.status-active, .status-available { color: #06d6a0; }
-.status-inactive, .status-retired { color: #889; }
+.status-active, .status-available, .status-online { color: #06d6a0; }
+.status-inactive, .status-retired, .status-offline { color: #889; }
 .status-maintenance { color: #f77f00; }
 .status-deployed { color: #4cc9f0; }
 .status-error { color: #e63946; }
