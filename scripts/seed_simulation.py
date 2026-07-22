@@ -486,10 +486,48 @@ def main() -> None:
 
     print_summary(deployment)
 
+    # Feldkirch_GS — real TinyGS station
+    feldkirch = GroundStation(
+        station_id="feldkirch-gs",
+        name="Feldkirch_GS",
+        location=Location(lat=47.245, lon=9.6, altitude_m=0, description="Feldkirch, Austria"),
+        status="online",
+        listening="FossaSat-2E19",
+        firmware_version="2603242",
+        qth_locator="JN47tf",
+        antenna_type="1/4\u03bb Collinear",
+        band="100 - 900 MHz",
+        radio_status="Ready",
+        auto_tune_freq_mhz=433.0,
+        test_mode=False,
+        auto_update=True,
+        confirmed_packets=2326,
+        telemetry_packets=755,
+        record_distance_km=2576.3,
+        local_ip="192.168.86.219",
+        wifi_rssi="Low",
+    )
+
     if args.dry_run:
         print(deployment_to_json(deployment))
+        print("\n--- Feldkirch_GS ---")
+        print(json.dumps(feldkirch.model_dump(), indent=2))
     else:
         insert_deployment(deployment)
+
+        # Insert Feldkirch_GS
+        from database.connection import COLLECTION_STATIONS, get_db
+        db = get_db()
+        existing = list(db.aql.execute(
+            "FOR s IN ground_stations FILTER s.station_id == @id LIMIT 1 RETURN s",
+            bind_vars={"id": feldkirch.station_id},
+        ))
+        if existing:
+            print(f"  ground_stations/{feldkirch.station_id} already exists — skipping")
+        else:
+            db.collection(COLLECTION_STATIONS).insert(feldkirch.model_dump())
+            print(f"  Inserted ground_stations/{feldkirch.station_id}")
+
         print("Done.")
 
 
